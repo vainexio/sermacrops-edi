@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SERMACROPS EDI Management System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: partners
+    description: Trading partner management
+  - name: endpoints
+    description: Partner endpoint management
+  - name: documents
+    description: EDI document operations
+  - name: notifications
+    description: Notification management
+  - name: as2
+    description: AS2 communication settings
+  - name: dashboard
+    description: Dashboard and analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,697 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Dashboard ───────────────────────────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Dashboard summary counts and statuses
+      responses:
+        "200":
+          description: Summary data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Recent activity feed
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Recent activity items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  # ─── Trading Partners ─────────────────────────────────────────────────────────
+  /partners:
+    get:
+      operationId: listPartners
+      tags: [partners]
+      summary: List all trading partners
+      responses:
+        "200":
+          description: List of trading partners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TradingPartner"
+    post:
+      operationId: createPartner
+      tags: [partners]
+      summary: Create a trading partner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TradingPartnerInput"
+      responses:
+        "201":
+          description: Created partner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradingPartner"
+
+  /partners/{id}:
+    get:
+      operationId: getPartner
+      tags: [partners]
+      summary: Get a trading partner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trading partner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradingPartner"
+        "404":
+          description: Not found
+    patch:
+      operationId: updatePartner
+      tags: [partners]
+      summary: Update a trading partner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TradingPartnerUpdate"
+      responses:
+        "200":
+          description: Updated partner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradingPartner"
+    delete:
+      operationId: deletePartner
+      tags: [partners]
+      summary: Delete a trading partner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Partner Endpoints ────────────────────────────────────────────────────────
+  /endpoints:
+    get:
+      operationId: listEndpoints
+      tags: [endpoints]
+      summary: List all partner endpoints
+      parameters:
+        - name: partnerId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of endpoints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PartnerEndpoint"
+    post:
+      operationId: createEndpoint
+      tags: [endpoints]
+      summary: Create a partner endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerEndpointInput"
+      responses:
+        "201":
+          description: Created endpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartnerEndpoint"
+
+  /endpoints/{id}:
+    get:
+      operationId: getEndpoint
+      tags: [endpoints]
+      summary: Get a partner endpoint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Partner endpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartnerEndpoint"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateEndpoint
+      tags: [endpoints]
+      summary: Update a partner endpoint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerEndpointUpdate"
+      responses:
+        "200":
+          description: Updated endpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartnerEndpoint"
+    delete:
+      operationId: deleteEndpoint
+      tags: [endpoints]
+      summary: Delete a partner endpoint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── EDI Documents ────────────────────────────────────────────────────────────
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List EDI documents
+      parameters:
+        - name: partnerId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: transactionSet
+          in: query
+          schema:
+            type: string
+        - name: direction
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of EDI documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EdiDocument"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Create/upload an EDI document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EdiDocumentInput"
+      responses:
+        "201":
+          description: Created document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EdiDocument"
+
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get an EDI document with full detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: EDI document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EdiDocumentDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update an EDI document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EdiDocumentUpdate"
+      responses:
+        "200":
+          description: Updated document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EdiDocument"
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete an EDI document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /documents/{id}/validate:
+    post:
+      operationId: validateDocument
+      tags: [documents]
+      summary: Validate an EDI document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResult"
+
+  /documents/{id}/translate:
+    post:
+      operationId: translateDocument
+      tags: [documents]
+      summary: Translate an EDI document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Translation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslationLog"
+
+  /documents/{id}/send:
+    post:
+      operationId: sendDocument
+      tags: [documents]
+      summary: Send an EDI document to the trading partner via AS2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transmission log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransmissionLog"
+
+  /documents/{id}/resend:
+    post:
+      operationId: resendDocument
+      tags: [documents]
+      summary: Resend a failed document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transmission log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransmissionLog"
+
+  /documents/{id}/history:
+    get:
+      operationId: getDocumentHistory
+      tags: [documents]
+      summary: Get status history for a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Status history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentStatusHistory"
+
+  /documents/{id}/progress:
+    get:
+      operationId: getDocumentProgress
+      tags: [documents]
+      summary: Get EDI transaction progress flow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Progress flow
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentProgress"
+
+  /documents/receive:
+    post:
+      operationId: receiveDocument
+      tags: [documents]
+      summary: Simulate receiving an inbound EDI document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReceiveDocumentInput"
+      responses:
+        "201":
+          description: Received document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EdiDocument"
+
+  # ─── Validation Results ───────────────────────────────────────────────────────
+  /validation-results:
+    get:
+      operationId: listValidationResults
+      tags: [documents]
+      summary: List validation results
+      parameters:
+        - name: documentId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValidationResult"
+
+  # ─── Translation Logs ─────────────────────────────────────────────────────────
+  /translation-logs:
+    get:
+      operationId: listTranslationLogs
+      tags: [documents]
+      summary: List translation logs
+      parameters:
+        - name: documentId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Translation logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TranslationLog"
+
+  # ─── Transmission Logs ────────────────────────────────────────────────────────
+  /transmission-logs:
+    get:
+      operationId: listTransmissionLogs
+      tags: [documents]
+      summary: List transmission logs
+      parameters:
+        - name: documentId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transmission logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransmissionLog"
+
+  # ─── Notifications ────────────────────────────────────────────────────────────
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ─── AS2 Settings ─────────────────────────────────────────────────────────────
+  /as2-settings:
+    get:
+      operationId: listAs2Settings
+      tags: [as2]
+      summary: List AS2 settings
+      parameters:
+        - name: partnerId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: AS2 settings list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/As2Setting"
+    post:
+      operationId: createAs2Setting
+      tags: [as2]
+      summary: Create AS2 settings for a partner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/As2SettingInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/As2Setting"
+
+  /as2-settings/{id}:
+    get:
+      operationId: getAs2Setting
+      tags: [as2]
+      summary: Get AS2 settings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: AS2 setting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/As2Setting"
+    patch:
+      operationId: updateAs2Setting
+      tags: [as2]
+      summary: Update AS2 settings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/As2SettingUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/As2Setting"
+    delete:
+      operationId: deleteAs2Setting
+      tags: [as2]
+      summary: Delete AS2 settings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /as2-settings/{id}/test:
+    post:
+      operationId: testAs2Connection
+      tags: [as2]
+      summary: Test AS2 connection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/As2TestResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +737,741 @@ components:
       required:
         - status
 
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    # ─── Dashboard ─────────────────────────────────────────────────────────────
+    DashboardSummary:
+      type: object
+      properties:
+        totalDocuments:
+          type: integer
+        totalPartners:
+          type: integer
+        totalEndpoints:
+          type: integer
+        unreadNotifications:
+          type: integer
+        documentsByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        documentsByTransactionSet:
+          type: object
+          additionalProperties:
+            type: integer
+        recentFailures:
+          type: integer
+        sentToday:
+          type: integer
+        receivedToday:
+          type: integer
+      required:
+        - totalDocuments
+        - totalPartners
+        - totalEndpoints
+        - unreadNotifications
+        - documentsByStatus
+        - documentsByTransactionSet
+        - recentFailures
+        - sentToday
+        - receivedToday
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        message:
+          type: string
+        documentId:
+          type: ["string", "null"]
+        partnerId:
+          type: ["string", "null"]
+        status:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - message
+        - createdAt
+
+    # ─── Trading Partners ───────────────────────────────────────────────────────
+    TradingPartner:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        as2Identifier:
+          type: string
+        contactEmail:
+          type: ["string", "null"]
+        contactPhone:
+          type: ["string", "null"]
+        supportedDocTypes:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, inactive, pending]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - as2Identifier
+        - supportedDocTypes
+        - status
+        - createdAt
+        - updatedAt
+
+    TradingPartnerInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        as2Identifier:
+          type: string
+          minLength: 1
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        supportedDocTypes:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, inactive, pending]
+      required:
+        - name
+        - as2Identifier
+
+    TradingPartnerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        as2Identifier:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        supportedDocTypes:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, inactive, pending]
+
+    # ─── Partner Endpoints ──────────────────────────────────────────────────────
+    PartnerEndpoint:
+      type: object
+      properties:
+        id:
+          type: string
+        partnerId:
+          type: string
+        partnerName:
+          type: ["string", "null"]
+        name:
+          type: string
+        url:
+          type: string
+        protocol:
+          type: string
+          enum: [AS2, SFTP, FTP, HTTP, HTTPS]
+        direction:
+          type: string
+          enum: [inbound, outbound, both]
+        supportedDocTypes:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - partnerId
+        - name
+        - url
+        - protocol
+        - direction
+        - supportedDocTypes
+        - isActive
+        - createdAt
+        - updatedAt
+
+    PartnerEndpointInput:
+      type: object
+      properties:
+        partnerId:
+          type: string
+        name:
+          type: string
+          minLength: 1
+        url:
+          type: string
+          minLength: 1
+        protocol:
+          type: string
+          enum: [AS2, SFTP, FTP, HTTP, HTTPS]
+        direction:
+          type: string
+          enum: [inbound, outbound, both]
+        supportedDocTypes:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+      required:
+        - partnerId
+        - name
+        - url
+        - protocol
+        - direction
+
+    PartnerEndpointUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        protocol:
+          type: string
+          enum: [AS2, SFTP, FTP, HTTP, HTTPS]
+        direction:
+          type: string
+          enum: [inbound, outbound, both]
+        supportedDocTypes:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    # ─── EDI Documents ──────────────────────────────────────────────────────────
+    EdiDocument:
+      type: object
+      properties:
+        id:
+          type: string
+        partnerId:
+          type: string
+        partnerName:
+          type: ["string", "null"]
+        endpointId:
+          type: ["string", "null"]
+        transactionSet:
+          type: string
+          enum: ["850", "855", "856", "810", "204", "990"]
+        controlNumber:
+          type: string
+        status:
+          type: string
+          enum: [Draft, Validated, Sent, Received, Acknowledged, Failed]
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        rawContent:
+          type: ["string", "null"]
+        parsedContent:
+          type: ["object", "null"]
+        validationStatus:
+          type: string
+          enum: [pending, passed, failed]
+        isAcknowledged:
+          type: boolean
+        sentAt:
+          type: ["string", "null"]
+        receivedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - partnerId
+        - transactionSet
+        - controlNumber
+        - status
+        - direction
+        - validationStatus
+        - isAcknowledged
+        - createdAt
+        - updatedAt
+
+    EdiDocumentDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        partnerId:
+          type: string
+        partnerName:
+          type: ["string", "null"]
+        endpointId:
+          type: ["string", "null"]
+        transactionSet:
+          type: string
+        controlNumber:
+          type: string
+        status:
+          type: string
+        direction:
+          type: string
+        rawContent:
+          type: ["string", "null"]
+        parsedContent:
+          type: ["object", "null"]
+        validationStatus:
+          type: string
+        isAcknowledged:
+          type: boolean
+        sentAt:
+          type: ["string", "null"]
+        receivedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        statusHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentStatusHistory"
+        validationResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationResult"
+        translationLogs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranslationLog"
+        transmissionLogs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransmissionLog"
+      required:
+        - id
+        - partnerId
+        - transactionSet
+        - controlNumber
+        - status
+        - direction
+        - validationStatus
+        - isAcknowledged
+        - createdAt
+        - updatedAt
+        - statusHistory
+        - validationResults
+        - translationLogs
+        - transmissionLogs
+
+    EdiDocumentInput:
+      type: object
+      properties:
+        partnerId:
+          type: string
+        endpointId:
+          type: string
+        transactionSet:
+          type: string
+          enum: ["850", "855", "856", "810", "204", "990"]
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        rawContent:
+          type: string
+      required:
+        - partnerId
+        - transactionSet
+        - direction
+
+    EdiDocumentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [Draft, Validated, Sent, Received, Acknowledged, Failed]
+        rawContent:
+          type: string
+
+    ReceiveDocumentInput:
+      type: object
+      properties:
+        partnerId:
+          type: string
+        endpointId:
+          type: string
+        transactionSet:
+          type: string
+          enum: ["850", "855", "856", "810", "204", "990"]
+        rawContent:
+          type: string
+      required:
+        - partnerId
+        - transactionSet
+        - rawContent
+
+    # ─── Status History ─────────────────────────────────────────────────────────
+    DocumentStatusHistory:
+      type: object
+      properties:
+        id:
+          type: string
+        documentId:
+          type: string
+        status:
+          type: string
+          enum: [Draft, Validated, Sent, Received, Acknowledged, Failed]
+        message:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - documentId
+        - status
+        - createdAt
+
+    # ─── Validation Results ─────────────────────────────────────────────────────
+    ValidationResult:
+      type: object
+      properties:
+        id:
+          type: string
+        documentId:
+          type: string
+        isValid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+        warnings:
+          type: array
+          items:
+            type: string
+        validatedAt:
+          type: string
+      required:
+        - id
+        - documentId
+        - isValid
+        - errors
+        - warnings
+        - validatedAt
+
+    ValidationError:
+      type: object
+      properties:
+        segment:
+          type: string
+        field:
+          type: ["string", "null"]
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - segment
+        - code
+        - message
+
+    # ─── Translation Logs ───────────────────────────────────────────────────────
+    TranslationLog:
+      type: object
+      properties:
+        id:
+          type: string
+        documentId:
+          type: string
+        direction:
+          type: string
+          enum: [edi_to_json, json_to_edi]
+        status:
+          type: string
+          enum: [success, failed]
+        inputFormat:
+          type: string
+        outputFormat:
+          type: string
+        parsedSegments:
+          type: integer
+        errorMessage:
+          type: ["string", "null"]
+        translatedAt:
+          type: string
+      required:
+        - id
+        - documentId
+        - direction
+        - status
+        - inputFormat
+        - outputFormat
+        - parsedSegments
+        - translatedAt
+
+    # ─── Transmission Logs ──────────────────────────────────────────────────────
+    TransmissionLog:
+      type: object
+      properties:
+        id:
+          type: string
+        documentId:
+          type: string
+        partnerId:
+          type: string
+        endpointUrl:
+          type: string
+        protocol:
+          type: string
+        status:
+          type: string
+          enum: [pending, success, failed]
+        httpStatusCode:
+          type: ["integer", "null"]
+        responseMessage:
+          type: ["string", "null"]
+        as2MessageId:
+          type: ["string", "null"]
+        transmittedAt:
+          type: string
+      required:
+        - id
+        - documentId
+        - partnerId
+        - endpointUrl
+        - protocol
+        - status
+        - transmittedAt
+
+    # ─── Notifications ──────────────────────────────────────────────────────────
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [status_change, validation_error, transmission_failure, acknowledgment, system]
+        title:
+          type: string
+        message:
+          type: string
+        documentId:
+          type: ["string", "null"]
+        partnerId:
+          type: ["string", "null"]
+        isRead:
+          type: boolean
+        severity:
+          type: string
+          enum: [info, warning, error, success]
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - title
+        - message
+        - isRead
+        - severity
+        - createdAt
+
+    # ─── AS2 Settings ───────────────────────────────────────────────────────────
+    As2Setting:
+      type: object
+      properties:
+        id:
+          type: string
+        partnerId:
+          type: string
+        partnerName:
+          type: ["string", "null"]
+        localAs2Id:
+          type: string
+        remoteAs2Id:
+          type: string
+        remoteUrl:
+          type: string
+        encryptionAlgorithm:
+          type: string
+          enum: [AES128, AES256, 3DES, NONE]
+        signatureAlgorithm:
+          type: string
+          enum: [SHA1, SHA256, SHA384, SHA512, NONE]
+        mdnMode:
+          type: string
+          enum: [sync, async, none]
+        mdnUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        lastTestedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - partnerId
+        - localAs2Id
+        - remoteAs2Id
+        - remoteUrl
+        - encryptionAlgorithm
+        - signatureAlgorithm
+        - mdnMode
+        - isActive
+        - createdAt
+        - updatedAt
+
+    As2SettingInput:
+      type: object
+      properties:
+        partnerId:
+          type: string
+        localAs2Id:
+          type: string
+          minLength: 1
+        remoteAs2Id:
+          type: string
+          minLength: 1
+        remoteUrl:
+          type: string
+          minLength: 1
+        encryptionAlgorithm:
+          type: string
+          enum: [AES128, AES256, 3DES, NONE]
+        signatureAlgorithm:
+          type: string
+          enum: [SHA1, SHA256, SHA384, SHA512, NONE]
+        mdnMode:
+          type: string
+          enum: [sync, async, none]
+        mdnUrl:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - partnerId
+        - localAs2Id
+        - remoteAs2Id
+        - remoteUrl
+
+    As2SettingUpdate:
+      type: object
+      properties:
+        localAs2Id:
+          type: string
+        remoteAs2Id:
+          type: string
+        remoteUrl:
+          type: string
+        encryptionAlgorithm:
+          type: string
+          enum: [AES128, AES256, 3DES, NONE]
+        signatureAlgorithm:
+          type: string
+          enum: [SHA1, SHA256, SHA384, SHA512, NONE]
+        mdnMode:
+          type: string
+          enum: [sync, async, none]
+        mdnUrl:
+          type: string
+        isActive:
+          type: boolean
+
+    As2TestResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        responseTime:
+          type: integer
+        testedAt:
+          type: string
+      required:
+        - success
+        - message
+        - testedAt
+
+    # ─── Progress ───────────────────────────────────────────────────────────────
+    DocumentProgress:
+      type: object
+      properties:
+        documentId:
+          type: string
+        transactionSet:
+          type: string
+        flowType:
+          type: string
+          enum: [procurement, logistics]
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressStep"
+        currentStep:
+          type: integer
+        totalSteps:
+          type: integer
+      required:
+        - documentId
+        - transactionSet
+        - flowType
+        - steps
+        - currentStep
+        - totalSteps
+
+    ProgressStep:
+      type: object
+      properties:
+        stepNumber:
+          type: integer
+        transactionSet:
+          type: string
+        label:
+          type: string
+        status:
+          type: string
+          enum: [completed, current, pending, failed]
+        documentId:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+      required:
+        - stepNumber
+        - transactionSet
+        - label
+        - status

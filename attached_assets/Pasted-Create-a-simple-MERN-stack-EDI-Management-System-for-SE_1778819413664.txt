@@ -1,0 +1,166 @@
+Create a **simple MERN stack EDI Management System** for SERMACROPS Manufacturing.
+
+You are a senior full-stack developer. Build a clean, modern web app using:
+
+* **MongoDB** for data storage (DO NOT USE POSTGRESQL) 
+* **Express.js** for the backend API
+* **React.js** for the frontend UI
+* **Node.js** for the server runtime
+
+## Goal
+
+The system should manage EDI document exchange between trading partners, support document translation and validation, and show the lifecycle/progress of each EDI transaction clearly.
+
+## Core features to include
+
+### 1) Partner Endpoint Management
+
+Create a module where users can:
+
+* add, edit, delete, and view partner endpoints
+* store partner name, endpoint URL, AS2 identifier, credentials/tokens, and supported document types
+* manage which partner receives which EDI documents
+* securely save tokens and connection settings
+
+### 2) EDI Document Translator
+
+Add an EDI translator service that can:
+
+* accept ANSI X12 formatted EDI documents
+* parse and map EDI segments into readable JSON
+* translate outgoing app data into ANSI X12 format
+* support at least EDI 850, 855, 856, 810, 204, and 990
+* keep translation logs and status history
+
+### 3) EDI Validation
+
+Add validation before sending or accepting a document:
+
+* check required segments
+* validate document structure
+* detect missing fields, invalid format, or unsupported transaction sets
+* show validation errors clearly in the UI
+* prevent invalid documents from being sent
+
+### 4) Notifications and Triggered Actions
+
+When document status changes, trigger:
+
+* UI notifications
+* email or in-app notifications
+* status updates such as Draft, Validated, Sent, Received, Acknowledged, Failed
+* actions like resend, retry, or mark resolved
+
+### 5) Communication Method: AS2
+
+Support **AS2** as the communication method:
+
+* create AS2 connection settings for each partner
+* store AS2 details per endpoint
+* simulate or implement sending and receiving through AS2
+* show transmission logs and message status
+
+### 6) EDI Endpoint Handling
+
+Create an EDI endpoint layer where:
+
+* incoming EDI documents can be received
+* outgoing EDI documents can be sent to configured partners
+* each endpoint has a clear relationship to a trading partner
+* the system can track which endpoint handled each document
+
+### 7) Clear Hierarchy / Progress UI
+
+When a user opens an EDI document, show a clear hierarchy and progress flow:
+
+* start from **EDI 850**
+* show the next document in sequence
+* display whether the document is being sent, received, validated, translated, acknowledged, or completed
+* use a timeline, stepper, or flow diagram UI
+* make the progress easy to understand at a glance
+
+Example flow:
+**EDI 850 → EDI 855 → EDI 856 → EDI 810**
+and for logistics:
+**EDI 204 → EDI 990**
+
+### 8) ANSI X12 Format
+
+All EDI handling must use **ANSI X12** standards:
+
+* parse ANSI X12 documents
+* generate ANSI X12 output
+* keep transaction set codes visible in the UI
+* show segment-level data where needed
+
+## Pages / Screens
+
+Build these screens:
+
+* Dashboard
+* Partner Endpoints
+* EDI Documents
+* Document Detail View with hierarchy/progress
+* Validation Results
+* Translation Logs
+* AS2 Communication Settings
+* Notifications Center
+
+## Data Models
+
+Include MongoDB models for:
+
+* Users
+* Trading Partners
+* Partner Endpoints
+* EDI Documents
+* Document Status History
+* Validation Results
+* Translation Logs
+* Notifications
+* Transmission Logs
+
+## API Requirements
+
+Create REST API endpoints for:
+
+* partner endpoint CRUD
+* document upload/create
+* validate document
+* translate document
+* send document
+* receive document
+* get document progress/history
+* manage notifications
+* manage AS2 settings
+
+## UI Requirements
+
+* simple, clean, professional design
+* dashboard cards with counts and statuses
+* document detail page with a visible progress tracker
+* readable tables for partner endpoints and EDI documents
+* status badges and error indicators
+* responsive layout
+
+## Technical Notes
+
+* Use reusable React components
+* Use modular Express controllers and services
+* Use validation middleware
+* Use clean folder structure
+* Add sample data for demonstration
+* Make the system simple but functional
+
+## Output
+
+Generate the full MERN stack project structure, including:
+
+* frontend React code
+* backend Express/Node code
+* MongoDB schemas
+* API routes
+* sample components
+* clear instructions to run the project locally
+
+Focus on making it practical, organized, and easy to understand for an EDI workflow system.
