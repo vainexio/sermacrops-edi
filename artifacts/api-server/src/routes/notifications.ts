@@ -13,7 +13,7 @@ function serialize(n: InstanceType<typeof Notification>) {
     partnerId: n.partnerId?.toString() ?? null,
     isRead: n.isRead,
     severity: n.severity,
-    createdAt: n.createdAt.toISOString(),
+    createdAt: n.createdAt?.toISOString() ?? new Date(0).toISOString(),
   };
 }
 

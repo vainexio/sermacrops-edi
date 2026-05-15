@@ -14,8 +14,8 @@ router.get("/partners", async (req, res) => {
     contactPhone: p.contactPhone ?? null,
     supportedDocTypes: p.supportedDocTypes,
     status: p.status,
-    createdAt: p.createdAt.toISOString(),
-    updatedAt: p.updatedAt.toISOString(),
+    createdAt: p.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: p.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   }));
   res.json(result);
 });
@@ -49,8 +49,8 @@ router.post("/partners", async (req, res) => {
     contactPhone: partner.contactPhone ?? null,
     supportedDocTypes: partner.supportedDocTypes,
     status: partner.status,
-    createdAt: partner.createdAt.toISOString(),
-    updatedAt: partner.updatedAt.toISOString(),
+    createdAt: partner.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: partner.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   });
 });
 
@@ -65,8 +65,8 @@ router.get("/partners/:id", async (req, res) => {
     contactPhone: partner.contactPhone ?? null,
     supportedDocTypes: partner.supportedDocTypes,
     status: partner.status,
-    createdAt: partner.createdAt.toISOString(),
-    updatedAt: partner.updatedAt.toISOString(),
+    createdAt: partner.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: partner.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   });
 });
 
@@ -81,8 +81,8 @@ router.patch("/partners/:id", async (req, res) => {
     contactPhone: partner.contactPhone ?? null,
     supportedDocTypes: partner.supportedDocTypes,
     status: partner.status,
-    createdAt: partner.createdAt.toISOString(),
-    updatedAt: partner.updatedAt.toISOString(),
+    createdAt: partner.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: partner.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   });
 });
 

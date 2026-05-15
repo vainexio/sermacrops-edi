@@ -70,7 +70,7 @@ router.get("/dashboard/activity", async (req, res) => {
     documentId: h.documentId?.toString() ?? null,
     partnerId: null,
     status: h.status,
-    createdAt: h.createdAt.toISOString(),
+    createdAt: h.createdAt?.toISOString() ?? new Date(0).toISOString(),
   }));
 
   res.json(items);

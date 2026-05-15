@@ -34,8 +34,8 @@ function serializeDoc(doc: InstanceType<typeof EdiDocument>, partnerName?: strin
     isAcknowledged: doc.isAcknowledged,
     sentAt: doc.sentAt?.toISOString() ?? null,
     receivedAt: doc.receivedAt?.toISOString() ?? null,
-    createdAt: doc.createdAt.toISOString(),
-    updatedAt: doc.updatedAt.toISOString(),
+    createdAt: doc.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: doc.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   };
 }
 
@@ -170,7 +170,7 @@ router.get("/documents/:id", async (req, res) => {
       documentId: h.documentId.toString(),
       status: h.status,
       message: h.message ?? null,
-      createdAt: h.createdAt.toISOString(),
+      createdAt: h.createdAt?.toISOString() ?? new Date(0).toISOString(),
     })),
     validationResults: validationResults.map((v) => ({
       id: v._id.toString(),
@@ -178,7 +178,7 @@ router.get("/documents/:id", async (req, res) => {
       isValid: v.isValid,
       errors: v.errors,
       warnings: v.warnings,
-      validatedAt: v.validatedAt.toISOString(),
+      validatedAt: v.validatedAt?.toISOString() ?? new Date(0).toISOString(),
     })),
     translationLogs: translationLogs.map((t) => ({
       id: t._id.toString(),
@@ -189,7 +189,7 @@ router.get("/documents/:id", async (req, res) => {
       outputFormat: t.outputFormat,
       parsedSegments: t.parsedSegments,
       errorMessage: t.errorMessage ?? null,
-      translatedAt: t.translatedAt.toISOString(),
+      translatedAt: t.translatedAt?.toISOString() ?? new Date(0).toISOString(),
     })),
     transmissionLogs: transmissionLogs.map((tx) => ({
       id: tx._id.toString(),
@@ -201,7 +201,7 @@ router.get("/documents/:id", async (req, res) => {
       httpStatusCode: tx.httpStatusCode ?? null,
       responseMessage: tx.responseMessage ?? null,
       as2MessageId: tx.as2MessageId ?? null,
-      transmittedAt: tx.transmittedAt.toISOString(),
+      transmittedAt: tx.transmittedAt?.toISOString() ?? new Date(0).toISOString(),
     })),
   });
 });
@@ -271,7 +271,7 @@ router.post("/documents/:id/validate", async (req, res) => {
     isValid: result.isValid,
     errors: result.errors,
     warnings: result.warnings,
-    validatedAt: result.validatedAt.toISOString(),
+    validatedAt: result.validatedAt?.toISOString() ?? new Date(0).toISOString(),
   });
 });
 
@@ -306,7 +306,7 @@ router.post("/documents/:id/translate", async (req, res) => {
     outputFormat: log.outputFormat,
     parsedSegments: log.parsedSegments,
     errorMessage: log.errorMessage ?? null,
-    translatedAt: log.translatedAt.toISOString(),
+    translatedAt: log.translatedAt?.toISOString() ?? new Date(0).toISOString(),
   });
 });
 
@@ -378,7 +378,7 @@ async function doSend(docId: mongoose.Types.ObjectId) {
     httpStatusCode: txLog.httpStatusCode ?? null,
     responseMessage: txLog.responseMessage ?? null,
     as2MessageId: txLog.as2MessageId ?? null,
-    transmittedAt: txLog.transmittedAt.toISOString(),
+    transmittedAt: txLog.transmittedAt?.toISOString() ?? new Date(0).toISOString(),
   };
 }
 
@@ -406,7 +406,7 @@ router.get("/documents/:id/history", async (req, res) => {
     documentId: h.documentId.toString(),
     status: h.status,
     message: h.message ?? null,
-    createdAt: h.createdAt.toISOString(),
+    createdAt: h.createdAt?.toISOString() ?? new Date(0).toISOString(),
   })));
 });
 
@@ -442,7 +442,7 @@ router.get("/documents/:id/progress", async (req, res) => {
       label: labels[ts] ?? ts,
       status,
       documentId: idx === currentIdx ? doc._id.toString() : null,
-      completedAt: status === "completed" && idx === currentIdx ? doc.updatedAt.toISOString() : null,
+      completedAt: status === "completed" && idx === currentIdx ? doc.updatedAt?.toISOString() ?? new Date(0).toISOString() : null,
     };
   });
 
@@ -469,7 +469,7 @@ router.get("/validation-results", async (req, res) => {
     isValid: v.isValid,
     errors: v.errors,
     warnings: v.warnings,
-    validatedAt: v.validatedAt.toISOString(),
+    validatedAt: v.validatedAt?.toISOString() ?? new Date(0).toISOString(),
   })));
 });
 
@@ -487,7 +487,7 @@ router.get("/translation-logs", async (req, res) => {
     outputFormat: t.outputFormat,
     parsedSegments: t.parsedSegments,
     errorMessage: t.errorMessage ?? null,
-    translatedAt: t.translatedAt.toISOString(),
+    translatedAt: t.translatedAt?.toISOString() ?? new Date(0).toISOString(),
   })));
 });
 
@@ -506,7 +506,7 @@ router.get("/transmission-logs", async (req, res) => {
     httpStatusCode: tx.httpStatusCode ?? null,
     responseMessage: tx.responseMessage ?? null,
     as2MessageId: tx.as2MessageId ?? null,
-    transmittedAt: tx.transmittedAt.toISOString(),
+    transmittedAt: tx.transmittedAt?.toISOString() ?? new Date(0).toISOString(),
   })));
 });
 

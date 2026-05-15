@@ -18,8 +18,8 @@ function serialize(s: InstanceType<typeof As2Setting>, partnerName?: string | nu
     mdnUrl: s.mdnUrl ?? null,
     isActive: s.isActive,
     lastTestedAt: s.lastTestedAt?.toISOString() ?? null,
-    createdAt: s.createdAt.toISOString(),
-    updatedAt: s.updatedAt.toISOString(),
+    createdAt: s.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: s.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   };
 }
 

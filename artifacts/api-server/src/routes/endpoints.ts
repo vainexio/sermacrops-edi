@@ -15,8 +15,8 @@ function serializeEndpoint(ep: InstanceType<typeof PartnerEndpoint> & { partnerN
     direction: ep.direction,
     supportedDocTypes: ep.supportedDocTypes,
     isActive: ep.isActive,
-    createdAt: ep.createdAt.toISOString(),
-    updatedAt: ep.updatedAt.toISOString(),
+    createdAt: ep.createdAt?.toISOString() ?? new Date(0).toISOString(),
+    updatedAt: ep.updatedAt?.toISOString() ?? new Date(0).toISOString(),
   };
 }
 
